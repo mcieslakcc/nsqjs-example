@@ -34,5 +34,5 @@ class NsqSender extends Nsq {
 const nsqSender = new NsqSender(responseTopic);
 nsqSender.init().then(() => {
     nsqSender.handleMessage();
-    nsqSender.sendMessages()
+    nsqSender.sendMessages();
 });
