@@ -1,0 +1,13 @@
+{
+  "name": "nsqjs-example",
+  "version": "1.0.0",
+  "description": "example usage of nsqjs",
+  "main": "index.js",
+  "repository": "https://github.com/mcieslakcc/nsqjs-example.git",
+  "author": "M.C",
+  "license": "MIT",
+  "dependencies": {
+    "moment": "^2.19.2",
+    "nsqjs": "^0.9.2"
+  }
+}
