@@ -19,9 +19,12 @@ class NsqSender extends Nsq {
     }
 
     sendMessage() {
-        console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Send message nr ${this.messageNumber}`);
-        this.writer.publish(requestTopic, `${this.messageNumber}`);
-        this.messageNumber++;
+        if (this.writer.active) {
+
+            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Send message nr ${this.messageNumber}`);
+            this.writer.publish(requestTopic, `${this.messageNumber}`);
+            this.messageNumber++;
+        }
     }
 
     sendMessages() {

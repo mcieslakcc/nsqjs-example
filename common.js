@@ -14,6 +14,7 @@ class Nsq {
         return new Promise((resolve) => {
             this.writer.connect();
             this.reader.connect();
+            this.onCloseReader();
             this.onConnect();
             this.onWriterInit().then(() => {
                resolve();
@@ -24,6 +25,22 @@ class Nsq {
     onConnect() {
         this.reader.on('nsqd_connected', host => {
             console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Connteted to nsq ${host}`);
+        });
+    }
+
+    onCloseReader() {
+        this.reader.on('nsqd_closed', ()  => {
+            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Closed reader.`);
+            this.writer.close();
+            this.readerReconnectInterval = setInterval(() => {
+                try {
+                    this.reader.connect();
+                    // this.init();
+                    console.log('try to connect');
+                } catch (e) {
+                    console.log(e)
+                }
+            }, 5000);
         });
     }
 

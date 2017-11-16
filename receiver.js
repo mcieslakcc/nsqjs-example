@@ -11,10 +11,12 @@ class NsqReceiver extends Nsq {
 
     handleMessage() {
         this.reader.on('message', (msg) => {
-            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Received message [${msg.id}] nr ${msg.body.toString()}`);
-            msg.finish();
-            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Send response on message [${msg.id}] nr ${msg.body.toString()}`);
-            this.writer.publish(responseTopic, msg.body.toString());
+            if (this.writer.active) {
+                console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Received message [${msg.id}] nr ${msg.body.toString()}`);
+                msg.finish();
+                console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Send response on message [${msg.id}] nr ${msg.body.toString()}`);
+                this.writer.publish(responseTopic, msg.body.toString());
+            }
         })
     }
 }
