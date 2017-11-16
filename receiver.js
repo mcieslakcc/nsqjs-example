@@ -11,7 +11,7 @@ class NsqReceiver extends Nsq {
 
     handleMessage() {
         this.reader.on('message', (msg) => {
-            if (this.writer.active) {
+            if (this.writer.ready) {
                 console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Received message [${msg.id}] nr ${msg.body.toString()}`);
                 msg.finish();
                 console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Send response on message [${msg.id}] nr ${msg.body.toString()}`);

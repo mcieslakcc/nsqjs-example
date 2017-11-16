@@ -9,6 +9,8 @@ class NsqSender extends Nsq {
     constructor(listenTopic) {
         super(listenTopic);
         this.messageNumber = 1;
+        this.inverval = null;
+        this.handleWriterInit();
     }
 
     handleMessage() {
@@ -19,23 +21,34 @@ class NsqSender extends Nsq {
     }
 
     sendMessage() {
-        if (this.writer.active) {
-
+        if (this.writer.ready) {
             console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Send message nr ${this.messageNumber}`);
             this.writer.publish(requestTopic, `${this.messageNumber}`);
             this.messageNumber++;
+        } else {
+            clearInterval(this.inverval);
+            this.inverval = null;
         }
     }
 
     sendMessages() {
-        setInterval(() => {
+        console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Writer is ready. Will send messages.`);
+        this.inverval = setInterval(() => {
             this.sendMessage();
         }, 10000);
+    }
+
+    handleWriterInit() {
+        this.emitter.on('writerInit', () => {
+            this.sendMessages();
+        });
     }
 }
 
 const nsqSender = new NsqSender(responseTopic);
 nsqSender.init().then(() => {
     nsqSender.handleMessage();
-    nsqSender.sendMessages();
 });
+
+
+
