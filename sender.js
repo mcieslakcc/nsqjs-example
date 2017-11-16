@@ -1,8 +1,11 @@
 const Nsq = require('./common');
 const moment = require('moment');
+const Timeouts = require('./lib/timeoutContants');
 
 const requestTopic = 'request_topic';
 const responseTopic = 'response_topic';
+
+
 
 class NsqSender extends Nsq {
 
@@ -35,7 +38,7 @@ class NsqSender extends Nsq {
         console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Writer is ready. Will send messages.`);
         this.inverval = setInterval(() => {
             this.sendMessage();
-        }, 10000);
+        }, Timeouts.sendMessage);
     }
 
     handleWriterInit() {

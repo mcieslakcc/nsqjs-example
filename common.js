@@ -1,9 +1,7 @@
 const nsq = require('nsqjs');
 const moment = require('moment');
 const EventEmitter = require('events');
-
-
-
+const Timeouts = require('./lib/timeoutContants');
 
 class Nsq {
     constructor(listenTopic) {
@@ -48,7 +46,7 @@ class Nsq {
             console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Closed reader.`);
             this.readerReconnectInterval = setInterval(() => {
                 this.reader.connect();
-            }, 10000);
+            }, Timeouts.reconnect);
         });
     }
 
@@ -65,9 +63,7 @@ class Nsq {
         this.writer.on('closed', () => {
             if (!this.writerConnectionInterval) {
                 console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Closed writer. Will try to connect again.`);
-                this.writerConnectionInterval = setInterval(() => {
-                    this.writer.connect();
-                }, 10000);
+                this.handleWriterReconnect();
             }
         });
     }
@@ -76,12 +72,19 @@ class Nsq {
         this.writer.on('error', () => {
             if (!this.writerConnectionInterval) {
                 console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Writer error. Will try to connect again.`);
-                this.writerConnectionInterval = setInterval(() => {
-                    this.writer.connect();
-                }, 10000);
+                this.handleWriterReconnect();
             }
         });
     }
+
+    handleWriterReconnect() {
+        if (!this.writerConnectionInterval) {
+            this.writerConnectionInterval = setInterval(() => {
+                this.writer.connect();
+            }, Timeouts.reconnect);
+        }
+    }
+
 }
 
 module.exports = Nsq;
