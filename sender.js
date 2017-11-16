@@ -52,6 +52,3 @@ const nsqSender = new NsqSender(responseTopic);
 nsqSender.init().then(() => {
     nsqSender.handleMessage();
 });
-
-
-

@@ -88,4 +88,3 @@ class Nsq {
 }
 
 module.exports = Nsq;
-
