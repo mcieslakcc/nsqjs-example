@@ -23,19 +23,22 @@ class Nsq {
             this.onWriterClose();
             this.onWriterError();
             this.onCloseReader();
+            this.onErrorReader();
             this.onConnect().then(() => {
                 resolve();
             });
+            this.readerConnecting = true;
         });
     }
 
     onConnect() {
         return new Promise((resolve) => {
             this.reader.on('nsqd_connected', host => {
-                console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Connteted to nsq ${host}.`);
+                console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Connected to nsq ${host}.`);
                 clearInterval(this.readerReconnectInterval);
                 this.readerReconnectInterval = null;
                 this.emitter.emit('readerInit');
+                this.readerConnecting = false;
                 resolve();
             });
         });
@@ -43,10 +46,19 @@ class Nsq {
 
     onCloseReader() {
         this.reader.on('nsqd_closed', ()  => {
-            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Closed reader.`);
-            this.readerReconnectInterval = setInterval(() => {
-                this.reader.connect();
-            }, Timeouts.reconnect);
+            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Closed reader. Will try to connect.`);
+            if (!this.readerConnecting) {
+                setTimeout(() => {
+                    this.reader.connect();
+                }, Timeouts.reconnect);
+                this.readerConnecting = true;
+            }
+        });
+    }
+
+    onErrorReader() {
+        this.reader.on('error', ()  => {
+            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Reader error.`);
         });
     }
 
@@ -61,30 +73,18 @@ class Nsq {
 
     onWriterClose() {
         this.writer.on('closed', () => {
-            if (!this.writerConnectionInterval) {
-                console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Closed writer. Will try to connect again.`);
-                this.handleWriterReconnect();
-            }
+            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Closed writer. Will try to connect again.`);
+            setTimeout(() => {
+                this.writer.connect();
+            }, Timeouts.reconnect);
         });
     }
 
     onWriterError() {
         this.writer.on('error', () => {
-            if (!this.writerConnectionInterval) {
-                console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Writer error. Will try to connect again.`);
-                this.handleWriterReconnect();
-            }
+            console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Writer error. Will try to connect again.`);
         });
     }
-
-    handleWriterReconnect() {
-        if (!this.writerConnectionInterval) {
-            this.writerConnectionInterval = setInterval(() => {
-                this.writer.connect();
-            }, Timeouts.reconnect);
-        }
-    }
-
 }
 
 module.exports = Nsq;
