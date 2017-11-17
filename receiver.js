@@ -1,12 +1,21 @@
-const Nsq = require('./common');
+const NsqMessenger = require('./common');
 const moment = require('moment');
+const nsq = require('nsqjs');
 
 const requestTopic = 'request_topic';
 const responseTopic = 'response_topic';
 
-class NsqReceiver extends Nsq {
+class NsqReceiver extends NsqMessenger {
     constructor(listenTopic) {
         super(listenTopic);
+        const nsq_addres = process.env.NSQ_ADDRESS || '127.0.0.1';
+        const lookup_address = process.env.LOOKUP_ADDRESS || '127.0.0.1:4161';
+        this.writer = new nsq.Writer(nsq_addres, 4150);
+        this.reader = new nsq.Reader(this.listenTopic, 'test_channel', {
+            lookupdHTTPAddresses: lookup_address,
+            lookupdPollInterval: 5,
+            heartbeatInterval: 5
+        });
     }
 
     handleMessage() {
