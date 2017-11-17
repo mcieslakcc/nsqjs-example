@@ -1,11 +1,11 @@
-const NsqMessanger = require('./common');
+const NsqMessenger = require('./common');
 const moment = require('moment');
 const nsq = require('nsqjs');
 
 const requestTopic = 'request_topic';
 const responseTopic = 'response_topic';
 
-class NsqReceiver extends NsqMessanger {
+class NsqReceiver extends NsqMessenger {
     constructor(listenTopic) {
         super(listenTopic);
         const nsq_addres = process.env.NSQ_ADDRESS || '127.0.0.1';

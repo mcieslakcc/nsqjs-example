@@ -1,4 +1,4 @@
-const NsqMessanger = require('./common');
+const NsqMessenger = require('./common');
 const moment = require('moment');
 const Timeouts = require('./lib/timeoutContants');
 const nsq = require('nsqjs');
@@ -7,8 +7,7 @@ const requestTopic = 'request_topic';
 const responseTopic = 'response_topic';
 
 
-
-class NsqSender extends NsqMessanger {
+class NsqSender extends NsqMessenger {
 
     constructor(listenTopic) {
         super(listenTopic);

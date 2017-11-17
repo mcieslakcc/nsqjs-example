@@ -3,7 +3,7 @@ const moment = require('moment');
 const EventEmitter = require('events');
 const Timeouts = require('./lib/timeoutContants');
 
-class NsqMessanger {
+class NsqMessenger {
     constructor(listenTopic) {
         this.listenTopic = listenTopic;
         this.writer = new nsq.Writer('127.0.0.1', 4150);
@@ -89,4 +89,4 @@ class NsqMessanger {
     }
 }
 
-module.exports = NsqMessanger;
+module.exports = NsqMessenger;
