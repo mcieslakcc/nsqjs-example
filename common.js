@@ -3,12 +3,14 @@ const moment = require('moment');
 const EventEmitter = require('events');
 const Timeouts = require('./lib/timeoutContants');
 
-class Nsq {
+class NsqMessanger {
     constructor(listenTopic) {
         this.listenTopic = listenTopic;
         this.writer = new nsq.Writer('127.0.0.1', 4150);
         this.reader = new nsq.Reader(this.listenTopic, 'test_channel', {
-            lookupdHTTPAddresses: '127.0.0.1:4161'
+            lookupdHTTPAddresses: '127.0.0.1:4161',
+            lookupdPollInterval: 5,
+            heartbeatInterval: 5
         });
         this.emitter = new EventEmitter();
         this.writerConnectionInterval = null;
@@ -87,4 +89,4 @@ class Nsq {
     }
 }
 
-module.exports = Nsq;
+module.exports = NsqMessanger;

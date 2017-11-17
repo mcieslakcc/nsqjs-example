@@ -1,16 +1,25 @@
-const Nsq = require('./common');
+const NsqMessanger = require('./common');
 const moment = require('moment');
 const Timeouts = require('./lib/timeoutContants');
+const nsq = require('nsqjs');
 
 const requestTopic = 'request_topic';
 const responseTopic = 'response_topic';
 
 
 
-class NsqSender extends Nsq {
+class NsqSender extends NsqMessanger {
 
     constructor(listenTopic) {
         super(listenTopic);
+        const nsq_addres = process.env.NSQ_ADDRESS || '127.0.0.1';
+        const lookup_address = process.env.LOOKUP_ADDRESS || '127.0.0.1:4161';
+        this.writer = new nsq.Writer(nsq_addres, 4150);
+        this.reader = new nsq.Reader(this.listenTopic, 'test_channel', {
+            lookupdHTTPAddresses: lookup_address,
+            lookupdPollInterval: 5,
+            heartbeatInterval: 5
+        });
         this.messageNumber = 1;
         this.inverval = null;
         this.handleWriterInit();
@@ -38,7 +47,7 @@ class NsqSender extends Nsq {
         console.log(`${moment().format('YYYY-MM-DD hh:mm:ss.SSS')} Writer is ready. Will send messages.`);
         this.inverval = setInterval(() => {
             this.sendMessage();
-        }, Timeouts.sendMessage);
+        }, process.env.SEND_MESSAGE_TIMEOUT || Timeouts.sendMessage);
     }
 
     handleWriterInit() {
